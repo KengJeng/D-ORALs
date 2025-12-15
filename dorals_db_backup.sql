@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 15, 2025 at 11:48 PM
+-- Generation Time: Dec 15, 2025 at 11:53 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -4692,7 +4692,7 @@ CREATE TABLE `cache` (
 --
 
 INSERT INTO `cache` (`key`, `value`, `expiration`) VALUES
-('laravel-cache-dashboard_stats__2025-12-15', 'a:11:{s:11:\"today_queue\";i:0;s:15:\"completed_today\";i:0;s:13:\"pending_today\";i:0;s:14:\"canceled_today\";i:0;s:13:\"no_show_today\";i:0;s:14:\"total_patients\";i:91;s:18:\"total_appointments\";i:0;s:7:\"pending\";i:0;s:9:\"confirmed\";i:0;s:9:\"completed\";i:0;s:8:\"canceled\";i:0;}', 1765812358),
+('laravel-cache-dashboard_stats__2025-12-15', 'a:11:{s:11:\"today_queue\";i:0;s:15:\"completed_today\";i:0;s:13:\"pending_today\";i:0;s:14:\"canceled_today\";i:0;s:13:\"no_show_today\";i:0;s:14:\"total_patients\";i:91;s:18:\"total_appointments\";i:0;s:7:\"pending\";i:0;s:9:\"confirmed\";i:0;s:9:\"completed\";i:0;s:8:\"canceled\";i:0;}', 1765814038),
 ('laravel-cache-patient_counts', 'O:18:\"App\\Models\\Patient\":34:{s:13:\"\0*\0connection\";s:5:\"mysql\";s:8:\"\0*\0table\";s:8:\"patients\";s:13:\"\0*\0primaryKey\";s:10:\"patient_id\";s:10:\"\0*\0keyType\";s:3:\"int\";s:12:\"incrementing\";b:1;s:7:\"\0*\0with\";a:0:{}s:12:\"\0*\0withCount\";a:0:{}s:19:\"preventsLazyLoading\";b:0;s:10:\"\0*\0perPage\";i:15;s:6:\"exists\";b:1;s:18:\"wasRecentlyCreated\";b:0;s:28:\"\0*\0escapeWhenCastingToString\";b:0;s:13:\"\0*\0attributes\";a:1:{s:14:\"total_patients\";i:91;}s:11:\"\0*\0original\";a:1:{s:14:\"total_patients\";i:91;}s:10:\"\0*\0changes\";a:0:{}s:11:\"\0*\0previous\";a:0:{}s:8:\"\0*\0casts\";a:3:{s:10:\"created_at\";s:8:\"datetime\";s:10:\"updated_at\";s:8:\"datetime\";s:10:\"deleted_at\";s:8:\"datetime\";}s:17:\"\0*\0classCastCache\";a:0:{}s:21:\"\0*\0attributeCastCache\";a:0:{}s:13:\"\0*\0dateFormat\";N;s:10:\"\0*\0appends\";a:0:{}s:19:\"\0*\0dispatchesEvents\";a:0:{}s:14:\"\0*\0observables\";a:0:{}s:12:\"\0*\0relations\";a:0:{}s:10:\"\0*\0touches\";a:0:{}s:27:\"\0*\0relationAutoloadCallback\";N;s:26:\"\0*\0relationAutoloadContext\";N;s:10:\"timestamps\";b:1;s:13:\"usesUniqueIds\";b:0;s:9:\"\0*\0hidden\";a:0:{}s:10:\"\0*\0visible\";a:0:{}s:11:\"\0*\0fillable\";a:7:{i:0;s:7:\"user_id\";i:1;s:10:\"first_name\";i:2;s:11:\"middle_name\";i:3;s:9:\"last_name\";i:4;s:3:\"sex\";i:5;s:10:\"contact_no\";i:6;s:7:\"address\";}s:10:\"\0*\0guarded\";a:1:{i:0;s:1:\"*\";}s:16:\"\0*\0forceDeleting\";b:0;}', 1765814633);
 
 -- --------------------------------------------------------
@@ -5510,7 +5510,7 @@ INSERT INTO `personal_access_tokens` (`id`, `tokenable_type`, `tokenable_id`, `n
 (209, 'App\\Models\\User', 98, 'admin-token', '2a090142de42ae07cbf11dbd86de199dfd3187634a006db79bcd27175a9085a8', '[\"*\"]', '2025-12-15 14:17:27', NULL, '2025-12-15 13:42:06', '2025-12-15 14:17:27'),
 (210, 'App\\Models\\User', 98, 'admin-token', '5301ba7032e0c4bbdf7f68c4bb0533fc83b6e416edca97552f097f5caf52d6a9', '[\"*\"]', '2025-12-15 14:18:46', NULL, '2025-12-15 14:18:01', '2025-12-15 14:18:46'),
 (211, 'App\\Models\\User', 99, 'patient-token', 'c337df8daa0832cc62d185d20ad99e933d9b0a9569dd5d79778f873f0841f4e1', '[\"*\"]', NULL, NULL, '2025-12-15 14:20:04', '2025-12-15 14:20:04'),
-(212, 'App\\Models\\User', 98, 'admin-token', '71b24a22f2c36f1832e1aeb1ff5facaf24403b15fc2404f128357878579db169', '[\"*\"]', '2025-12-15 15:25:11', NULL, '2025-12-15 14:20:28', '2025-12-15 15:25:11'),
+(212, 'App\\Models\\User', 98, 'admin-token', '71b24a22f2c36f1832e1aeb1ff5facaf24403b15fc2404f128357878579db169', '[\"*\"]', '2025-12-15 15:53:00', NULL, '2025-12-15 14:20:28', '2025-12-15 15:53:00'),
 (213, 'App\\Models\\User', 98, 'admin-token', '507a3172559a6536bc7bb66a717823a72fcd7d47ba272e3a14027ac358c74163', '[\"*\"]', '2025-12-15 15:10:16', NULL, '2025-12-15 14:32:30', '2025-12-15 15:10:16');
 
 -- --------------------------------------------------------
