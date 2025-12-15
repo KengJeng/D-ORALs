@@ -27,8 +27,6 @@ class AuditLog extends Model
 
     public function user()
     {
-        // This can be polymorphic if you want to track both patients and admins
-        // For now, returns null as it's just storing the ID
         return null;
     }
 

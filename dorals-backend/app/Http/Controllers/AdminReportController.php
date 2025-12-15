@@ -13,9 +13,9 @@ class AdminReportController extends Controller
     public function index()
     {
         // CONFIG
-        $historicalDays  = 90;  // how many days of history to show
-        $forecastHorizon = 7;   // how many days to forecast
-        $movingWindow    = 7;   // moving average window (days)
+        $historicalDays  = 90;  
+        $forecastHorizon = 7;   
+        $movingWindow    = 7; 
 
         $today        = Carbon::today();
         $historyStart = $today->copy()->subDays($historicalDays - 1);
@@ -181,8 +181,8 @@ class AdminReportController extends Controller
 // ===========================================
 // 6. Prescriptive Scheduling Recommendations
 // ===========================================
-$dentistsAvailable    = 1;   // adjust as needed
-$avgServiceDuration   = 30;  // default minutes
+$dentistsAvailable    = 1;  
+$avgServiceDuration   = 30; 
 $peakCongestionWindow = "10:00–11:30 AM";
 
 // Average daily load from forecast
@@ -190,7 +190,7 @@ $avgForecastPerDay = $forecastHorizon > 0
     ? round($totalNextPeriod / $forecastHorizon, 1)
     : 0;
 
-// No-show risk (last 30 days)
+// No-show risk 
 $recentWindow = Carbon::today()->subDays(30);
 
 $recentCompleted = Appointment::whereDate('scheduled_date', '>=', $recentWindow)
@@ -218,7 +218,6 @@ $weekdayNames = [
     7 => 'Saturday',
 ];
 
-// Look at last 6 weeks
 $historyWindowStart = $today->copy()->subWeeks(6);
 
 $weekdayStats = Appointment::selectRaw('
@@ -268,11 +267,11 @@ foreach ($weekdayNames as $dow => $name) {
 // Best and worst weekdays
 $bestDow = !empty($weekdayScores)
     ? array_keys($weekdayScores, max($weekdayScores))[0]
-    : 2; // default Monday
+    : 2; 
 
 $worstDow = !empty($weekdayScores)
     ? array_keys($weekdayScores, min($weekdayScores))[0]
-    : 2; // default Monday
+    : 2; 
 
 $suggestedDayName = $weekdayNames[$bestDow];
 $worstDayName     = $weekdayNames[$worstDow];
@@ -298,7 +297,6 @@ usort($ranking, function($a, $b) {
 });
 
 
-// Build final prescriptive data
 $prescriptiveReco = [
     'peak_window'          => $peakCongestionWindow,
     'avg_daily_load'       => $avgForecastPerDay,

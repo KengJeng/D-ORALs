@@ -16,7 +16,6 @@ class ServiceController extends Controller
      */
     public function index()
     {
-        // OPTIMIZATION: Cache services list for 1 hour (invalidated on create/update/delete)
         $services = Cache::remember('services_list', 3600, function () {
             return Service::select('service_id', 'name', 'duration', 'created_at')
                 ->orderBy('name')
@@ -26,13 +25,13 @@ class ServiceController extends Controller
     }
 
     /**
-     * Store a newly created service
+     * Store a created service
      */
     public function store(Request $request)
     {
         $request->validate([
             'name' => 'required|string|max:255|unique:services,name',
-            'duration' => 'required|integer|min:1|max:480', // max 8 hours
+            'duration' => 'required|integer|min:1|max:480',
         ]);
 
         $service = Service::create([
@@ -40,7 +39,6 @@ class ServiceController extends Controller
             'duration' => $request->duration,
         ]);
 
-        // Invalidate cache
         Cache::forget('services_list');
 
         return response()->json([
@@ -102,7 +100,6 @@ class ServiceController extends Controller
 
         $service->delete();
 
-        // Invalidate cache
         Cache::forget('services_list');
 
         return response()->json([
@@ -146,7 +143,7 @@ class ServiceController extends Controller
      */
     public function popular(Request $request)
     {
-        $limit = min($request->input('limit', 5), 100); // Cap at 100
+        $limit = min($request->input('limit', 5), 100); 
         $cacheKey = "popular_services_{$limit}";
 
         return Cache::remember($cacheKey, 3600, function () use ($limit) {

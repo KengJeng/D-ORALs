@@ -15,7 +15,6 @@ class AnalyticsController extends Controller
 {
     public function appointments()
     {
-        // Summary statistics
         $totalAppointments = Appointment::count();
         $completed = Appointment::where('status', 'Completed')->count();
         $canceled = Appointment::whereIn('status', ['Canceled', 'No-show'])->count();
@@ -23,21 +22,16 @@ class AnalyticsController extends Controller
         $completionRate = $totalAppointments > 0 ? round(($completed / $totalAppointments) * 100, 1) : 0;
         $cancellationRate = $totalAppointments > 0 ? round(($canceled / $totalAppointments) * 100, 1) : 0;
         
-        // Average appointments per day
         $firstAppointment = Appointment::min('scheduled_date');
         $daysOperating = $firstAppointment ? Carbon::parse($firstAppointment)->diffInDays(Carbon::now()) + 1 : 1;
         $avgPerDay = round($totalAppointments / $daysOperating, 1);
         
-        // Appointment trends (last 30 days)
         $trends = $this->getAppointmentTrends(30);
         
-        // Status breakdown
         $statusBreakdown = $this->getStatusBreakdown();
         
-        // Peak days (day of week)
         $peakDays = $this->getPeakDays();
         
-        // Monthly comparison (last 3 months)
         $monthly = $this->getMonthlyComparison();
         
         return response()->json([
@@ -54,27 +48,21 @@ class AnalyticsController extends Controller
     
     public function demographics()
     {
-        // Summary statistics
         $totalPatients = Patient::count();
         $newThisMonth = Patient::whereMonth('created_at', Carbon::now()->month)
             ->whereYear('created_at', Carbon::now()->year)
             ->count();
         $activePatients = Patient::has('appointments')->count();
         
-        // Average visits per patient
         $totalAppointments = Appointment::count();
         $avgVisits = $activePatients > 0 ? round($totalAppointments / $activePatients, 1) : 0;
         
-        // Gender distribution
         $gender = $this->getGenderDistribution();
         
-        // Barangay distribution (top 10)
         $barangays = $this->getBarangayDistribution();
         
-        // Patient growth (last 6 months)
         $growth = $this->getPatientGrowth();
         
-        // Service utilization
         $services = $this->getServiceUtilization();
         
         return response()->json([
@@ -128,7 +116,6 @@ class AnalyticsController extends Controller
     
     private function getPeakDays()
     {
-        // Initialize days array (Monday to Sunday)
         $days = array_fill(0, 7, 0);
         
         $appointments = Appointment::selectRaw('DAYOFWEEK(scheduled_date) as day, COUNT(*) as count')
@@ -136,8 +123,6 @@ class AnalyticsController extends Controller
             ->get();
         
         foreach ($appointments as $apt) {
-            // MySQL DAYOFWEEK: 1 = Sunday, 2 = Monday, etc.
-            // Convert to 0 = Monday, 6 = Sunday
             $dayIndex = ($apt->day + 5) % 7;
             $days[$dayIndex] = $apt->count;
         }
@@ -232,9 +217,8 @@ class AnalyticsController extends Controller
     
     private function getServiceUtilization()
 {
-    // Ensure these match your actual table names
     $servicesTable = 'services';
-    $pivotTable = 'appointment_services'; // adjust if needed
+    $pivotTable = 'appointment_services';
 
     $services = DB::table($servicesTable)
         ->leftJoin($pivotTable, $servicesTable . '.service_id', '=', $pivotTable . '.service_id')
@@ -266,27 +250,24 @@ class AnalyticsController extends Controller
         $today = Carbon::today();
         $startDate = $today->copy()->subDays(90);
 
-        // 1. Historical counts per day (last 90 days, excluding canceled / no-show)
         $historical = Appointment::select(
                 DB::raw('DATE(scheduled_date) as date'),
                 DB::raw('COUNT(*) as count')
             )
             ->whereDate('scheduled_date', '>=', $startDate)
             ->whereDate('scheduled_date', '<=', $today)
-            ->whereNotIn('status', ['Canceled', 'No-show']) // adjust if needed
+            ->whereNotIn('status', ['Canceled', 'No-show'])
             ->groupBy(DB::raw('DATE(scheduled_date)'))
             ->orderBy('date', 'asc')
             ->get();
 
-        // 2. Build weekday statistics (Mon..Sun => average count)
-        // weekday: 1=Monday ... 7=Sunday
         $weekdayCounts = [];
         $weekdayTotals = [];
         $weekdayDays = [];
 
         foreach ($historical as $row) {
             $date = Carbon::parse($row->date);
-            $weekday = $date->dayOfWeekIso; // 1..7
+            $weekday = $date->dayOfWeekIso; 
 
             if (!isset($weekdayTotals[$weekday])) {
                 $weekdayTotals[$weekday] = 0;
@@ -302,12 +283,10 @@ class AnalyticsController extends Controller
             if (!empty($weekdayDays[$w])) {
                 $weekdayAverages[$w] = round($weekdayTotals[$w] / $weekdayDays[$w], 2);
             } else {
-                // If no data for that weekday, fallback to global average
                 $weekdayAverages[$w] = $historical->avg('count') ?: 0;
             }
         }
 
-        // 3. Build next 7 days forecast
         $forecastDays = 7;
         $forecastLabels = [];
         $forecastValues = [];
@@ -319,7 +298,6 @@ class AnalyticsController extends Controller
             $forecastValues[] = (float) ($weekdayAverages[$weekday] ?? 0);
         }
 
-        // 4. Prepare historical for chart (last 30 days for nicer display)
         $historicalForChart = $historical->filter(function ($row) use ($today) {
                 return Carbon::parse($row->date)->greaterThanOrEqualTo($today->copy()->subDays(30));
             })
@@ -342,11 +320,7 @@ class AnalyticsController extends Controller
             ],
         ]);
     }
-/**
-     * Daily appointment density for a month (for calendar heatmap).
-     *
-     * GET /api/analytics/calendar-density?year=2025&month=12
-     */
+
     public function calendarDensity(Request $request)
     {
         $year  = (int) ($request->query('year', now()->year));
@@ -355,14 +329,12 @@ class AnalyticsController extends Controller
         $startOfMonth = Carbon::create($year, $month, 1)->startOfDay();
         $endOfMonth   = (clone $startOfMonth)->endOfMonth();
 
-        // group appointments by date and count them
         $rows = Appointment::whereBetween('scheduled_date', [$startOfMonth, $endOfMonth])
             ->selectRaw('DATE(scheduled_date) as day, COUNT(*) as total')
             ->groupBy('day')
             ->orderBy('day')
             ->get();
 
-        // return as simple map: { "2025-12-01": 5, "2025-12-02": 1, ... }
         $byDay = [];
         foreach ($rows as $row) {
             $byDay[$row->day] = (int) $row->total;

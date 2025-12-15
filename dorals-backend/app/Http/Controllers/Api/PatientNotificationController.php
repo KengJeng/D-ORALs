@@ -10,9 +10,8 @@ class PatientNotificationController extends Controller
 {
     public function index(Request $request)
     {
-        $patient = $request->user(); // must be the authenticated Patient
+        $patient = $request->user(); 
 
-        // Return latest notifications for that patient's appointments
         $rows = Notification::query()
             ->whereHas('appointment', function ($q) use ($patient) {
                 $q->where('patient_id', $patient->patient_id);

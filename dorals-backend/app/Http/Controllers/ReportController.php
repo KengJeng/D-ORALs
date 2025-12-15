@@ -10,16 +10,15 @@ use Maatwebsite\Excel\Facades\Excel;
 class ReportController extends Controller
 {
     /**
-     * Show the appointments report page (web view).
+     * Show the appointments report page
      */
     public function appointments(Request $request)
     {
-        // Optional filters from query string
-        $from = $request->query('from');   // e.g. 2025-12-01
-        $to = $request->query('to');     // e.g. 2025-12-31
-        $status = $request->query('status'); // Completed, Canceled, etc.
+        $from = $request->query('from');
+        $to = $request->query('to');   
+        $status = $request->query('status'); 
 
-        $query = Appointment::with('patient'); // adjust relationships as needed
+        $query = Appointment::with('patient');
 
         if ($from) {
             $query->whereDate('scheduled_date', '>=', $from);
@@ -38,8 +37,6 @@ class ReportController extends Controller
             ->paginate(20)
             ->appends($request->query());
 
-        // You can also compute summary stats here if needed (totals, completion rate, etc.)
-
         return view('reports.appointments', [
             'appointments' => $appointments,
             'filters' => [
@@ -51,7 +48,7 @@ class ReportController extends Controller
     }
 
     /**
-     * Export the appointments report as CSV.
+     * Export the appointments report as Excel.
      */
     public function exportAppointments(Request $request)
     {
@@ -59,7 +56,6 @@ class ReportController extends Controller
         $to = $request->query('to');
         $status = $request->query('status');
 
-        // Excel or CSV implementation here
         return Excel::download(
             new AppointmentsExport($from, $to, $status),
             'appointments_report_'.now()->format('Ymd_His').'.xlsx'

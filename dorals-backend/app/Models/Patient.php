@@ -21,7 +21,6 @@ class Patient extends Model
         'sex',
         'contact_no',
         'address',
-        // do NOT include email/password in Option A
     ];
 
     protected $casts = [

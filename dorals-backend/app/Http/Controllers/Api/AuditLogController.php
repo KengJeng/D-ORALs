@@ -50,7 +50,6 @@ class AuditLogController extends Controller
                 })
                 ->count();
             
-            // Get results
             $results = $query->offset(($page - 1) * $perPage)
                             ->limit($perPage)
                             ->get();

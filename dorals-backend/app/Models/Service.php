@@ -14,7 +14,7 @@ class Service extends Model
 
     protected $fillable = [
         'name',
-        'duration', // in minutes
+        'duration',
     ];
 
     protected $casts = [

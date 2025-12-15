@@ -48,7 +48,6 @@ class QueueController extends Controller
 
     /**
      * Call next patient and update status
-     * Also creates an in-app notification ("15–20 minutes" heads up).
      */
     public function callNext(Request $request)
     {
@@ -64,7 +63,6 @@ class QueueController extends Controller
 
         DB::transaction(function () use ($next) {
 
-            // Update status to Confirmed if Pending
             if ($next->status === 'Pending') {
                 $next->update(['status' => 'Confirmed']);
             }
@@ -73,15 +71,11 @@ class QueueController extends Controller
                 'appointment_id' => $next->appointment_id,
                 'queue_number'   => $next->queue_number,
                 'message'        => "You're next. Please be ready in 15–20 minutes. Queue #: {$next->queue_number}",
-                'is_sent'        => false,  // treat as unread
+                'is_sent'        => false,
                 'created_at'     => now(),
             ]);
 
-            // If your service also creates DB notifications, you may want to remove this line to avoid duplicates.
             $this->notificationService->sendTurnNotification($next, 0);
-
-            // Optional audit log entry
-            // $this->auditLog->log(null, "Called next patient: Appointment #{$next->appointment_id} (Queue #{$next->queue_number})");
         });
 
         return response()->json([

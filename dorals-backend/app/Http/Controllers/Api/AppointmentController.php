@@ -30,7 +30,6 @@ class AppointmentController extends Controller
      */
     public function adminStore(Request $request)
     {
-        // Ensure this is an admin
         $user = $request->user();
         if (! ($user instanceof Admin)) {
             abort(403, 'Admin access only.');
@@ -124,7 +123,6 @@ class AppointmentController extends Controller
                 'patient_id' => $request->patient_id,
                 'scheduled_date' => $request->scheduled_date,
                 'status' => 'Pending',
-                // created_by / updated_by are NULL because this is a patient, not an admin
                 'created_by' => null,
                 'updated_by' => null,
             ]);
@@ -169,26 +167,17 @@ class AppointmentController extends Controller
         return response()->json($appointment);
     }
 
-    /**
-     * Admin updates appointment (status/date/services)
-     */
     public function update(Request $request, $id)
 {
-    // Get the currently authenticated user
-    $user = $request->user();  // Get logged-in user
+    $user = $request->user();
 
-    // Log the user's role for debugging
-    \Log::info('User Role:', ['role' => $user->role]);  // Log the role for debugging
 
-    // Check if the user is an admin (role-based access control)
     if ($user->role !== 'admin') {
-        return response()->json(['message' => 'Admin access only.'], 403);  // Return 403 if not an admin
+        return response()->json(['message' => 'Admin access only.'], 403);  
     }
 
-    // Find the appointment by ID, or fail if not found
     $appointment = Appointment::findOrFail($id);
 
-    // Validate the incoming request
     $request->validate([
         'scheduled_date' => 'sometimes|date|after_or_equal:today',
         'status' => 'sometimes|in:Pending,Confirmed,Completed,Canceled,No-show',
@@ -196,44 +185,33 @@ class AppointmentController extends Controller
         'service_ids.*' => 'exists:services,service_id',
     ]);
 
-    // Update scheduled_date if provided
     if ($request->has('scheduled_date')) {
         $appointment->scheduled_date = $request->scheduled_date;
 
-        // Reassign the queue number if the scheduled date changes
         $queueNumber = $this->queueService->assignQueue($appointment);
         $appointment->queue_number = $queueNumber;
     }
 
-    // Update status if provided
     if ($request->has('status')) {
         $oldStatus = $appointment->status;
         $appointment->status = $request->status;
 
-        // Send notification if the status has changed
         if ($oldStatus !== $request->status) {
             $this->notificationService->sendStatusUpdate($appointment);
         }
     }
 
-    // Save the updated appointment
     $appointment->save();
 
-    // If service_ids are provided, update the associated services
     if ($request->has('service_ids')) {
         $appointment->services()->sync($request->service_ids);
     }
-    // Return a successful response with the updated appointment
     return response()->json([
         'message' => 'Appointment updated successfully',
         'appointment' => $appointment->load(['patient', 'services']),
     ]);
 }
 
-
-    /**
-     * Admin deletes appointment
-     */
     public function destroy(Request $request, $id)
     {
         $appointment = Appointment::findOrFail($id);
@@ -275,15 +253,10 @@ class AppointmentController extends Controller
         return response()->json($appointments);
     }
 
-    /**
-     * Today's queue (used by admin dashboard)
-     */
     public function todayQueue()
     {
         $today = Carbon::today()->toDateString();
 
-        // We keep your optimization (selected columns + relations),
-        // but now the model accessor will add `google_calendar_url` automatically.
         $appointments = Appointment::select([
             'appointment_id',
             'patient_id',

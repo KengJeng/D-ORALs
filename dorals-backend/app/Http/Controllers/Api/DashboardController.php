@@ -19,13 +19,12 @@ class DashboardController extends Controller
     public function stats(Request $request)
 {
     $today   = Carbon::today();
-    $patient = $request->user(); // logged-in patient via Sanctum
+    $patient = $request->user();
 
     // Cache per patient per day so patients don't see each other's stats
     $cacheKey = "dashboard_stats_{$patient->patient_id}_{$today->toDateString()}";
 
     $data = Cache::remember($cacheKey, 300, function () use ($today, $patient) {
-        // Base query: this patient's appointments
         $baseQuery = Appointment::where('patient_id', $patient->patient_id);
 
         // =======================
@@ -51,13 +50,11 @@ class DashboardController extends Controller
         $completed = (clone $baseQuery)->where('status', 'Completed')->count();
         $canceled  = (clone $baseQuery)->where('status', 'Canceled')->count();
 
-        // (Optional) overall patient count – you can keep your original cache
         $patientStats = Cache::remember('patient_counts', 3600, function () {
             return Patient::selectRaw('COUNT(*) as total_patients')->first();
         });
 
         return [
-            // your original fields (still available if you need them)
             'today_queue'      => $todayStats->today_queue      ?? 0,
             'completed_today'  => $todayStats->completed_today  ?? 0,
             'pending_today'    => $todayStats->pending_today    ?? 0,
@@ -65,7 +62,6 @@ class DashboardController extends Controller
             'no_show_today'    => $todayStats->no_show_today    ?? 0,
             'total_patients'   => $patientStats->total_patients ?? 0,
 
-            // used by Home & Reports screen
             'total_appointments' => $totalAppointments,
             'pending'            => $pending,
             'confirmed'          => $confirmed,
@@ -74,7 +70,6 @@ class DashboardController extends Controller
         ];
     });
 
-    // cache stores the array; here we wrap it as JSON response
     return response()->json($data);
 }
 
@@ -84,7 +79,7 @@ class DashboardController extends Controller
      */
     public function trends(Request $request)
     {
-        $days = min($request->input('days', 30), 365); // Cap at 365 days
+        $days = min($request->input('days', 30), 365); 
         $endDate = Carbon::today();
         $startDate = Carbon::today()->subDays($days);
 
@@ -98,7 +93,6 @@ class DashboardController extends Controller
                 ->get()
                 ->keyBy('date');
 
-            // Fill in missing dates with zero counts
             $labels = [];
             $values = [];
             $currentDate = $startDate->copy();
@@ -166,7 +160,6 @@ class DashboardController extends Controller
             $currentMonth = Carbon::now()->month;
             $currentYear = Carbon::now()->year;
 
-            // Single query for all demographic data
             $demographics = Patient::selectRaw("
                 COUNT(*) as total_patients,
                 COUNT(CASE WHEN MONTH(created_at) = ? AND YEAR(created_at) = ? THEN 1 END) as new_this_month,
@@ -241,7 +234,6 @@ class DashboardController extends Controller
                 ->get()
                 ->keyBy('hour');
 
-            // Fill in all 24 hours
             $distribution = [];
             for ($hour = 0; $hour < 24; $hour++) {
                 $distribution[] = [
@@ -268,7 +260,6 @@ class DashboardController extends Controller
         $cacheKey = "analytics_summary_{$startDate->toDateString()}_{$endDate->toDateString()}";
 
         return Cache::remember($cacheKey, 600, function () use ($startDate, $endDate) {
-            // Single optimized query for all metrics
             $summary = Appointment::whereBetween('scheduled_date', [$startDate, $endDate])
                 ->selectRaw("
                     COUNT(*) as total_appointments,
@@ -317,7 +308,7 @@ class DashboardController extends Controller
      */
     public function clearCache()
     {
-        Cache::flush(); // Or use tags if available: Cache::tags(['dashboard'])->flush();
+        Cache::flush();
         
         return response()->json([
             'message' => 'Dashboard cache cleared successfully'
@@ -327,8 +318,8 @@ class DashboardController extends Controller
     /**
      * Return upcoming appointments for the authenticated patient
      */
-public function upcoming(Request $request)
-{
+    public function upcoming(Request $request)
+    {
     $patient = $request->user();
 
     if (! $patient) {
@@ -343,7 +334,7 @@ public function upcoming(Request $request)
             'queue_number',
             'created_at',
         ])
-        ->with('services:service_id,name,duration') // same shape as myAppointments
+        ->with('services:service_id,name,duration') 
         ->where('patient_id', $patient->patient_id)
         ->whereDate('scheduled_date', '>=', Carbon::today())
         ->whereIn('status', ['Pending', 'Confirmed'])
@@ -357,11 +348,10 @@ public function upcoming(Request $request)
 
 
     /**
-     * Return services list for patient UI (lightweight)
+     * Return services list for patient UI
      */
     public function services(Request $request)
     {
-        // Cache short-lived for quick responses
         $services = Cache::remember('public_services_list', 300, function () {
             return Service::select('service_id', 'name', 'duration')
                 ->orderBy('name')
@@ -384,11 +374,9 @@ public function upcoming(Request $request)
             return response()->json(['message' => 'Unauthenticated'], 401);
         }
 
-        // Basic patient info
         $patientData = Patient::select('patient_id', 'first_name', 'middle_name', 'last_name', 'email', 'contact_no')
             ->find($patient->patient_id);
 
-        // Upcoming count and last appointment
         $today = Carbon::today();
 
         $upcomingCount = Appointment::where('patient_id', $patient->patient_id)

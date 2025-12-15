@@ -128,7 +128,6 @@ class NotificationService
     {
         $date = $date ?? Carbon::today()->toDateString();
 
-        // Get current queue position
         $appointments = Appointment::with('patient')
             ->whereDate('scheduled_date', $date)
             ->whereIn('status', ['Pending', 'Confirmed'])
@@ -141,9 +140,7 @@ class NotificationService
         foreach ($appointments as $index => $appointment) {
             $peopleAhead = $index;
 
-            // Notify if they're next or within 2 people
             if ($peopleAhead <= 2) {
-                // Check if notification already sent
                 $existingNotification = Notification::where('appointment_id', $appointment->appointment_id)
                     ->where('message', 'like', '%your turn%')
                     ->where('created_at', '>=', Carbon::now()->subMinutes(30))

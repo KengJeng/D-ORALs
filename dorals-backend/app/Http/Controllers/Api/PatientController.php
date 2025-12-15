@@ -13,14 +13,12 @@ class PatientController extends Controller
 {
     /**
      * Display a listing of patients
-     * Option A: email is in users table, so we join users.
      */
     public function index(Request $request)
     {
         $query = Patient::query()
             ->leftJoin('users', 'patients.user_id', '=', 'users.id');
 
-        // Select only necessary columns for listing (email from users)
         $query->select([
             'patients.patient_id',
             'patients.user_id',
@@ -51,15 +49,12 @@ class PatientController extends Controller
         if ($request->filled('sex')) {
             $query->where('patients.sex', $request->input('sex'));
         }
-
         $patients = $query->orderBy('patients.created_at', 'desc')->paginate(20);
-
         return response()->json($patients);
     }
 
     /**
      * Display the specified patient
-     * Option A: include email from users
      */
     public function show($id)
     {
@@ -84,7 +79,6 @@ class PatientController extends Controller
 
     /**
      * Update the specified patient (admin-side edit)
-     * Option A: profile fields in patients; email in users.
      */
     public function update(Request $request, $id)
     {
@@ -97,7 +91,6 @@ class PatientController extends Controller
             'sex'         => 'sometimes|in:Male,Female',
             'contact_no'  => 'sometimes|string|max:20',
             'address'     => 'sometimes|string',
-            // Email uniqueness is now in users table
             'email'       => 'sometimes|email|max:255|unique:users,email,' . $patient->user_id,
         ]);
 
@@ -126,8 +119,6 @@ class PatientController extends Controller
 
     /**
      * Get patient's appointment history
-     * FIXED to match your ERD:
-     * appointments -> appointment_services -> services (services.service_id)
      */
     public function appointmentHistory($id)
     {
@@ -155,7 +146,6 @@ class PatientController extends Controller
 
     /**
      * Get patient statistics
-     * Option A: patient table no longer stores email; return user email separately.
      */
     public function statistics($id)
     {
@@ -236,11 +226,9 @@ class PatientController extends Controller
 
     /**
      * Get current authenticated patient profile
-     * auth:sanctum -> request->user() is User
      */
     public function profile(Request $request)
     {
-        /** @var User $user */
         $user = $request->user();
 
         $patient = Patient::where('user_id', $user->id)->first();
@@ -260,11 +248,9 @@ class PatientController extends Controller
 
     /**
      * Update current authenticated patient profile
-     * patients table for profile fields; users table for email
      */
     public function updateProfile(Request $request)
     {
-        /** @var User $user */
         $user = $request->user();
 
         $patient = Patient::where('user_id', $user->id)->first();
@@ -310,7 +296,6 @@ class PatientController extends Controller
      */
     public function changePassword(Request $request)
     {
-        /** @var User $user */
         $user = $request->user();
 
         $request->validate([

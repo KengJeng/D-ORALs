@@ -13,12 +13,10 @@ class AuthenticatePatient
      */
     public function handle(Request $request, Closure $next): Response
     {
-        // Check if patient is in session
         if (session('patient')) {
             return $next($request);
         }
 
-        // Redirect to login if no patient session found
         return redirect()->route('patient.login');
     }
 }

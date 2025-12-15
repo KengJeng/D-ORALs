@@ -13,7 +13,6 @@ class User extends Authenticatable
 
     /**
      * Mass assignable attributes
-     * REQUIRED to fix MassAssignmentException
      */
     protected $fillable = [
         'name',
