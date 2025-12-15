@@ -9,16 +9,6 @@ use App\Models\Admin;
 
 class LoginHistoryController extends Controller
 {
-    /**
-     * List login history (ADMIN ONLY).
-     *
-     * Optional query parameters:
-     * - user_type: 'admin' or 'patient'
-     * - user_id: numeric id of the user
-     * - date_from: YYYY-MM-DD
-     * - date_to: YYYY-MM-DD
-     * - per_page: page size (default 20)
-     */
     public function index(Request $request)
     {
         // Ensure only admins can access this endpoint

@@ -10,15 +10,10 @@ use App\Models\Admin;
 
 class LoginHistoryController extends Controller
 {
-    /**
-     * Show login history page (web view)
-     */
     public function index(Request $request)
     {
-        // Optional: restrict to admins (if using web guard)
         $user = $request->user();
         if ($user && $user instanceof Admin === false) {
-            // If not admin, abort or redirect to admin login
             return redirect('/admin/login');
         }
 
