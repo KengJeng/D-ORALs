@@ -18,9 +18,6 @@ class Appointment extends Model
         'scheduled_date',
         'status',
         'queue_number',
-        // if you also save these in controller, you can add:
-        // 'created_by',
-        // 'updated_by',
     ];
 
     protected $casts = [
@@ -29,10 +26,6 @@ class Appointment extends Model
         'updated_at'     => 'datetime',
     ];
 
-    /**
-     * Make this virtual attribute visible in JSON responses.
-     * This is what your JS (loadQueue) will read as a.google_calendar_url.
-     */
     protected $appends = ['google_calendar_url'];
 
     public function patient()
@@ -99,7 +92,6 @@ class Appointment extends Model
             optional($this->patient)->first_name . ' ' . optional($this->patient)->last_name
         );
 
-        // All-day event on scheduled_date
         $start = Carbon::parse($this->scheduled_date)->format('Ymd');
         $end   = Carbon::parse($this->scheduled_date)->addDay()->format('Ymd');
 
