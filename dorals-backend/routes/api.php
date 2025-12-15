@@ -44,10 +44,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/patient/notifications', [PatientNotificationController::class, 'index']);
     Route::patch('/patient/notifications/{id}/read', [PatientNotificationController::class, 'markRead']);
 
-    // Optional (if you need it in Flutter UI):
-    // Route::get('/patient/appointments/history', [PatientController::class, 'appointmentHistorySelf']);
-
-
     // -----------------------
     // PATIENT MANAGEMENT (ADMIN SIDE)
     // -----------------------
