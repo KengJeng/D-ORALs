@@ -1,0 +1,50 @@
+.nav-item {
+    color: #445b89;
+}
+
+.nav-item:hover {
+    background: #f3f4f6;
+    color: #1f2937;
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+/* Chart container helpers */
+.chart-container {
+    max-height: 400px;
+    height: 400px;
+    width: 100%;
+}
+
+/* Assuming your sidebar has a fixed position */
+#sideNav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;  /* Ensure it takes up the full viewport height */
+    width: 250px;  /* Adjust the width according to your design */
+    z-index: 1000;  /* Ensures sidebar is above the content */
+}
+
+/* Make sure the content area doesn't get hidden behind the sidebar */
+#settingsSection {
+    margin-left: 200px;  /* Create space for the sidebar */
+    padding: 20px;  /* Ensure the content has proper padding */
+}
+
+
+/* Specific chart height tweaks */
+#appointmentTrendsChart,
+#appointmentStatusChart,
+#peakDaysChart,
+#monthlyComparisonChart,
+#appointmentsForecastChart, #barangayChart,
+#patientGrowthChart,
+#serviceUtilizationChart
+ {
+    max-height: 300px !important;
+}
